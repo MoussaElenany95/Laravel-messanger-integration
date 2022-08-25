@@ -37,7 +37,7 @@ return [
     'facebook' => [
         'client_id' => '1090455885199704',
         'client_secret' => '5104c2941f0461ccb44d8feea0d91966',
-        'redirect' => 'http://localhost',
+        'redirect' => 'https://nafeesbrands.sa/callback',
     ],
 
 ];

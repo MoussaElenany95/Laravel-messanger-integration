@@ -28,6 +28,12 @@ class HomeController extends Controller
     public function redirect(){
 
         // dd('ssssssssss');
-        return Socialite::driver('facebook')->redirect();
+        return Socialite::driver('facebook')->scopes(['pages_manage_engagement'])->redirect();
+    }
+    public function callback(){
+        
+        $user = Socialite::driver('facebook')->user();
+
+        dd($user);
     }
 }

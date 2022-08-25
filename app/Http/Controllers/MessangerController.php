@@ -6,7 +6,24 @@ use App\Services\MessangerService;
 use Illuminate\Http\Request;
 
 class MessangerController extends Controller
-{
+{   
+    private $messanger ;
+
+    public function __construct()
+    {
+        $this->messanger = new MessangerService();    
+    }
+    /**
+     *  display pages that user has
+     *  @return \Illuminate\Http\Response
+     */
+    public function pages(){
+        
+        $pages = $this->messanger->getPages();
+
+        return response()->json($pages);
+
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,9 +31,10 @@ class MessangerController extends Controller
      */
     public function conversations(Request $request)
     {
-        $messager = new MessangerService();
-
-        $conversations = $messager->getConversations();
+        
+        $page_id                = $request->page_id;
+        $page_access_token      = $request->page_access_token;
+        $conversations = $this->messanger->getConversations($page_id,$page_access_token);
         
         return response()->json($conversations);
     }
@@ -27,11 +45,11 @@ class MessangerController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function messages($id){
+    public function messages(Request $request){
 
-        $messager = new MessangerService();
-
-        $messages = $messager->getMessages($id);
+        $conversation_id   = $request->id;
+        $page_access_token = $request->page_access_token;
+        $messages          = $this->messanger->getMessages($conversation_id,$page_access_token);
         
         return response()->json($messages);
 
@@ -42,15 +60,15 @@ class MessangerController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function sendMessage(Request $request)
     {
         $user_id    = $request->id;
         $message    = $request->message;
-        $image      = $request->file('image');
-        $messager   = new MessangerService();
-        // $response = $messager->sendMessage($user_id,$message);
+        // $image      = $request->file('image');
+        $page_access_token = $request->page_access_token;
+        $response   = $this->messanger->sendMessage($user_id,$message,$page_access_token);
         // $response = $messager->sendMessageWithAttachment($user_id,$message,$image);
-        $response = $messager->oneTimeNotification($user_id,$message);
+        // $response = $this->messager->oneTimeNotification($user_id,$message);
         return $response ? response()->json(['message'=>'Message sent']): response()->json(['message'=>'Error while sending message']);
     }
 

@@ -24,3 +24,4 @@ Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/redirect',[HomeController::class,'redirect'])->name('facebookredirect');
+Route::post('/callback',[HomeController::class,'callback']);

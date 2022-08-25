@@ -16,37 +16,41 @@ class MessangerService
     {   
         $this->token = config('services.messanger.token');
 
+    }
+
+    /**
+     * get all pages owned by user
+     * @return array
+     */
+    public function getPages(){
+
         try{
+            
+            $response = Http::get('https://graph.facebook.com/me/accounts?access_token='.$this->token);
 
-            // send get request to messanger api to get page id
-            $response = Http::get('https://graph.facebook.com/me?access_token='.$this->token);
-            $this->page_id = $response->object()->id;
+            return $response->object();
 
+            
 
         }catch(Exception $e){
 
-           $this->page_id = null;
+            throw new Exception('Error while fetch pages');
 
         }
-       
-    }
 
+    }
     /**
      *  get all conversisions from messanger api
      *  @return array
      *  @throws Exception
      * 
      */
-    public function getConversations(){
+    public function getConversations(int $page,string $page_access_token){
 
-        if($this->page_id == null){
-
-            throw new Exception('Page id not found');
-        }
-
+      
         try{
             
-            $response = Http::get('https://graph.facebook.com/'.$this->page_id.'/conversations?access_token='.$this->token.'&fields=participants,messages.limit(1){message,created_time}');
+            $response = Http::get('https://graph.facebook.com/'.$page.'/conversations?access_token='.$page_access_token.'&fields=participants,messages.limit(1){message,created_time}');
 
             return $response->object();
 
@@ -65,11 +69,11 @@ class MessangerService
      *  @param string $conversation_id
      *  @return array
      */
-    public function getMessages($conversation_id){
+    public function getMessages($conversation_id,$page_access_token){
         
         try{
             
-            $response = Http::get('https://graph.facebook.com/'.$conversation_id.'/messages?access_token='.$this->token.'&fields=message,attachments,created_time');
+            $response = Http::get('https://graph.facebook.com/'.$conversation_id.'/messages?access_token='.$page_access_token.'&fields=message,attachments,created_time');
             return $response->object();
         }catch(Exception $e){
             throw new Exception('Error while fetch messages for conversation');
@@ -83,9 +87,9 @@ class MessangerService
      * @param  string  $message
      * @return void
      */
-    public function sendMessage($user, $message)
+    public function sendMessage($user, $message,$page_access_token)
     {
-        $response = Http::post('https://graph.facebook.com/me/messages?access_token='.$this->token, [
+        $response = Http::post('https://graph.facebook.com/me/messages?access_token='.$page_access_token, [
             'recipient' => [
                 'id' => $user,
             ],
